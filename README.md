@@ -19,6 +19,7 @@ Le but de l'exercice est d'implementer un composant `CodeInput` permettant à l'
 - L'utilisateur doit pouvoir effacer le dernier chiffre rentré et revenir en arrière avec la touche `Backspace` de son clavier
 - Lorsque le code est rempli, la fonction `onCodeFull` doit être appelée, avec le code converti en une suite de caractères (ex. Pour le code `1234`, il faudra appeler `onCodeFull("1234");`)
 - Le focus doit automatiquement se placer sur le premier input non rempli en partant de la gauche, afin de permettre à l'utilisateur de rentrer tous les caractères sans avoir à gérer le focus manuellement. Le comportement à implémenter lorsque tous les inputs sont remplis n'est pas défini.
+- Le focus doit être géré automatiquement. L'utilisateur ne doit pas pouvoir mettre le focus manuellement sur un des `Input` du composant
 
 ## Considérations techniques
 
