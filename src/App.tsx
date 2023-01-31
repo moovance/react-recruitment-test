@@ -1,13 +1,13 @@
-import './App.css';
-import CodeInput from './technical-test/code-input/CodeInput';
+import "./App.css";
+import CodeInput from "./technical-test/code-input/CodeInput";
 
 function App() {
   const handleCodeInputFilled = (code: string) => {
-    console.log({code});
-  }
+    console.log({ code });
+  };
   return (
     <div className="App">
-      <CodeInput length={4} onCodeFull={handleCodeInputFilled}/>
+      <CodeInput length={4} onCodeFull={handleCodeInputFilled} />
     </div>
   );
 }

@@ -15,13 +15,23 @@ const getInputElementByIndex = (index: number) => {
   ) as HTMLInputElement;
 };
 
+const getFirstEmptyInput = (values: string[]) => {
+  const firstEmptyInputIndex = values.findIndex((el) => !el);
+  const firstEmptyInput = getInputElementByIndex(firstEmptyInputIndex);
+  return firstEmptyInput;
+};
+
+const getLastInput = (values: string[]) => {
+  return getInputElementByIndex(values.length - 1);
+};
+
 export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
   const [values, setValues] = useState<string[]>(Array(length).fill(""));
   const [elementToFocus, setElementToFocus] = useState<HTMLInputElement>();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const keyDownHandler = (e: KeyboardEvent) => {
-    const keyCode = e.code;
+  const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const keyCode = e.key;
     const currentInput = e.target as HTMLInputElement;
     const currentIndex = +currentInput.id.split("").pop()!;
 
@@ -45,18 +55,7 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
   };
 
   useEffect(() => {
-    const containerElement = document.getElementById(
-      "code-container"
-    ) as HTMLDivElement;
-    containerElement.addEventListener("keydown", keyDownHandler);
-
-    return () => {
-      containerElement.removeEventListener("keydown", keyDownHandler);
-    };
-  }, [values]);
-
-  useEffect(() => {
-    if (values.every((el) => el!!)) {
+    if (values.every((el) => !!el)) {
       const code = values.join("");
       onCodeFull(code);
     }
@@ -65,17 +64,20 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
   }, [values, elementToFocus, onCodeFull]);
 
   const focusHandler = (_: React.FocusEvent<HTMLInputElement>) => {
+    //Enable to change focus while deleting
     if (isDeleting) return;
+
     //Get the index of the first empty input
     const firstEmptyInputIndex = values.findIndex((el) => !el);
 
+    //if no input is empty
     if (firstEmptyInputIndex === -1) {
-      //focus the last input if all full
-      const lastInput = getInputElementByIndex(values.length - 1);
+      //focus the last input
+      const lastInput = getLastInput(values);
       lastInput?.focus();
     } else {
       //focus the first empty input
-      const firstEmptyInput = getInputElementByIndex(firstEmptyInputIndex)!;
+      const firstEmptyInput = getFirstEmptyInput(values)!;
       firstEmptyInput.focus();
     }
   };
@@ -84,10 +86,12 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
     event: React.FormEvent<HTMLInputElement>,
     index: number
   ) => {
-    // if (values[index]) return;
-
     const inputElement = event.nativeEvent.target as HTMLInputElement;
     const value = inputElement.value;
+
+    //if trying to have more than 1 number in the input -> return
+    if (value.length > 1) return;
+
     setValues((prevState) => {
       const newState = [...prevState];
       newState[index] = value;
@@ -98,25 +102,42 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
       //focus the next input
       const currentInput = event.target as HTMLInputElement;
       const nextInput = currentInput.nextElementSibling as HTMLInputElement;
+
       if (!isDeleting) {
         setElementToFocus(nextInput);
       }
     }
   };
 
+  const clickHandler = (_: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    const firstEmptyInput = getFirstEmptyInput(values);
+
+    if (firstEmptyInput) {
+      firstEmptyInput.focus();
+    } else {
+      const lastInput = getLastInput(values)!;
+      lastInput.focus();
+    }
+  };
+
   return (
-    <div id="code-container">
+    <>
       {[...Array(length)].map((_, index) => (
         <Input
           id={BASE_CODE_INPUT_ID + index}
           key={index}
           type="number"
+          min={0}
+          max={9}
+          step={1}
           autoFocus
+          onClick={clickHandler}
+          onKeyDown={keyDownHandler}
           onFocus={focusHandler}
           onChange={(e) => changeHandler(e, index)}
           value={values[index]}
         />
       ))}
-    </div>
+    </>
   );
 }
