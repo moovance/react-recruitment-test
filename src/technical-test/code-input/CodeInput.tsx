@@ -30,6 +30,15 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
   const [elementToFocus, setElementToFocus] = useState<HTMLInputElement>();
   const [isDeleting, setIsDeleting] = useState(false);
 
+  useEffect(() => {
+    if (values.every((el) => !!el)) {
+      const code = values.join("");
+      onCodeFull(code);
+    }
+
+    elementToFocus?.focus();
+  }, [values, elementToFocus, onCodeFull, isDeleting]);
+
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const keyCode = e.key;
     const currentInput = e.target as HTMLInputElement;
@@ -53,15 +62,6 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
       setIsDeleting(false);
     }
   };
-
-  useEffect(() => {
-    if (values.every((el) => !!el)) {
-      const code = values.join("");
-      onCodeFull(code);
-    }
-
-    elementToFocus?.focus();
-  }, [values, elementToFocus, onCodeFull]);
 
   const focusHandler = (_: React.FocusEvent<HTMLInputElement>) => {
     //Enable to change focus while deleting
@@ -110,14 +110,7 @@ export default function CodeInput({ length, onCodeFull }: CodeInputProps) {
   };
 
   const clickHandler = (_: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-    const firstEmptyInput = getFirstEmptyInput(values);
-
-    if (firstEmptyInput) {
-      firstEmptyInput.focus();
-    } else {
-      const lastInput = getLastInput(values)!;
-      lastInput.focus();
-    }
+    setIsDeleting(false);
   };
 
   return (
